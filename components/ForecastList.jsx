@@ -40,7 +40,7 @@ export default function ForecastList() {
         let forecastUrl = await getGridPoint(location);
         let forecastData = await getForecastData(forecastUrl);
         setForecast(forecastData);
-        setIsLoading(false); // Set loading state to false after fetching
+        setIsLoading(false);
     }
 
     if (isLoading) {
