@@ -2,7 +2,8 @@ import {
     View,
     Text,
     FlatList,
-    TouchableOpacity
+    TouchableOpacity,
+    ActivityIndicator // loading spinner
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -10,21 +11,10 @@ import * as Location from 'expo-location';
 import { getGridPoint, getForecastData } from '../requests/weather.requests';
 
 export default function ForecastList() {
-    // Similar to useHistory
     const navigation = useNavigation();
-    const [forecast, setForecast] = useState([
-        {
-            temperature: 80,
-            name: 'Mostly sunny',
-            number: 1
-        },
-        {
-            temperature: 91,
-            name: 'Sunny',
-            number: 2
-        }
-    ]);
+    const [forecast, setForecast] = useState([]);
     const [location, setLocation] = useState();
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         getLocation();
@@ -44,22 +34,31 @@ export default function ForecastList() {
         if (location && location.coords) {
             getWeatherData();
         }
-        // When location is updated, run this useEffect
     }, [location]);
 
     const getWeatherData = async () => {
         let forecastUrl = await getGridPoint(location);
         let forecastData = await getForecastData(forecastUrl);
         setForecast(forecastData);
+        setIsLoading(false); // Set loading state to false after fetching
+    }
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>
+                    <ActivityIndicator size="large" color="blue" />
+                </Text>
+            </View>
+        );
     }
 
     return (
         <View style={{ height: '100%' }}>
             <Text>{JSON.stringify(location)}</Text>
-            {/* Similar to .map to display data */}
             <FlatList
                 data={forecast}
-                renderItem={({item}) => (
+                renderItem={({ item }) => (
                     <TouchableOpacity
                         style={{ padding: 20, borderColor: 'gray', borderBottomWidth: 1 }}
                         onPress={() => {
